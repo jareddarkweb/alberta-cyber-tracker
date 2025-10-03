@@ -2,7 +2,7 @@
 
 A community-maintained database tracking cyber security incidents affecting organizations in Alberta, Canada.
 
-🌐 **Live Demo:** https://yourusername.github.io/alberta-cyber-tracker
+
 
 ## 📊 Features
 
