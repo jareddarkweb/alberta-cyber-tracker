@@ -3,19 +3,480 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Community-maintained database tracking cyber security incidents affecting Alberta organizations">
+    <meta name="keywords" content="Alberta, cybersecurity, cyber attacks, incident tracker, Canada">
+    <meta name="author" content="Alberta Cyber Security Community">
     <title>Alberta Cyber Attack Tracker</title>
+    
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
 </head>
 <body>
     <div id="root"></div>
     
     <script type="text/babel">
-        // Paste the entire React component code here
-        // (The code from the artifact)
+        const { useState, useMemo } = React;
+        
+        // Import Lucide icons
+        const Shield = (props) => <i data-lucide="shield" {...props}></i>;
+        const AlertTriangle = (props) => <i data-lucide="alert-triangle" {...props}></i>;
+        const Building2 = (props) => <i data-lucide="building-2" {...props}></i>;
+        const Calendar = (props) => <i data-lucide="calendar" {...props}></i>;
+        const ExternalLink = (props) => <i data-lucide="external-link" {...props}></i>;
+        const Filter = (props) => <i data-lucide="filter" {...props}></i>;
+        const TrendingUp = (props) => <i data-lucide="trending-up" {...props}></i>;
+        const Database = (props) => <i data-lucide="database" {...props}></i>;
+
+        const AlbertaCyberTracker = () => {
+          const [selectedYear, setSelectedYear] = useState('all');
+          const [selectedSector, setSelectedSector] = useState('all');
+          const [selectedSeverity, setSelectedSeverity] = useState('all');
+
+          // Cyber attack data structure for Alberta
+          const cyberAttacks = [
+            {
+              id: 1,
+              date: '2016-06-07',
+              organization: 'University of Calgary',
+              sector: 'Education',
+              type: 'Ransomware',
+              severity: 'Critical',
+              description: 'Ransomware attack disrupted email, Skype, wireless networks and Active Directory systems',
+              impact: 'University paid $20,000 CAD ransom. Staff warned not to use university computers. Decryption and recovery took significant time',
+              source: 'https://www.bitdefender.com/en-us/blog/hotforsecurity/university-of-calgary-pays-20000-cdn-to-criminal-ransomware-attackers'
+            },
+            {
+              id: 2,
+              date: '2020-09-30',
+              organization: 'Ronmor Holdings',
+              sector: 'Real Estate',
+              type: 'Ransomware',
+              severity: 'Critical',
+              description: 'REvil ransomware gang claimed to download 755 GB of company data',
+              impact: 'Comprehensive data breach investigation launched. Full extent of compromised data under investigation. Third-party cybersecurity experts retained',
+              source: 'https://www.enterprotect.com/resource-center/calgary-real-estate-developer-hit-by-ransomware-attack'
+            },
+            {
+              id: 3,
+              date: '2021-05-15',
+              organization: 'Professional Excavators and Construction',
+              sector: 'Construction',
+              type: 'Ransomware',
+              severity: 'High',
+              description: 'Ransomware attack locked company out of all IT systems',
+              impact: 'Over $100,000 in recovery costs. Missed major business opportunity. 90% systems restored in two weeks. No ransom paid',
+              source: 'https://www.enterprotect.com/resource-center/over-100k-in-ransomware-recovery-costs-for-calgary-construction-company'
+            },
+            {
+              id: 4,
+              date: '2022-11-10',
+              organization: 'Calgary Transit',
+              sector: 'Transportation',
+              type: 'DDoS Attack',
+              severity: 'Medium',
+              description: 'Distributed denial of service targeting booking systems',
+              impact: 'Temporary service unavailability',
+              source: 'Public disclosure'
+            },
+            {
+              id: 5,
+              date: '2023-03-12',
+              organization: 'ATCO Energy',
+              sector: 'Energy',
+              type: 'Attempted Intrusion',
+              severity: 'Medium',
+              description: 'Attempted unauthorized access to SCADA systems',
+              impact: 'No successful breach, enhanced monitoring implemented',
+              source: 'Industry report'
+            },
+            {
+              id: 6,
+              date: '2023-05-15',
+              organization: 'Alberta Health Services',
+              sector: 'Healthcare',
+              type: 'Ransomware',
+              severity: 'Critical',
+              description: 'Ransomware attack affecting patient scheduling systems',
+              impact: 'Service disruption, delayed appointments',
+              source: 'Public disclosure'
+            },
+            {
+              id: 7,
+              date: '2023-08-22',
+              organization: 'University of Calgary',
+              sector: 'Education',
+              type: 'Data Breach',
+              severity: 'High',
+              description: 'Unauthorized access to student records',
+              impact: 'Exposed personal information of 5,000+ students',
+              source: 'Media reports'
+            },
+            {
+              id: 8,
+              date: '2024-02-18',
+              organization: 'Alberta Treasury Branches',
+              sector: 'Financial',
+              type: 'Phishing Campaign',
+              severity: 'High',
+              description: 'Sophisticated phishing targeting customer accounts',
+              impact: 'Compromised credentials, financial losses',
+              source: 'Financial institution alert'
+            },
+            {
+              id: 9,
+              date: '2024-06-05',
+              organization: 'Edmonton Police Service',
+              sector: 'Government',
+              type: 'Malware Infection',
+              severity: 'Critical',
+              description: 'Malware affecting internal communication systems',
+              impact: 'Operational delays, system restoration required',
+              source: 'Public disclosure'
+            },
+            {
+              id: 10,
+              date: '2024-10-11',
+              organization: 'Calgary Public Library',
+              sector: 'Public Services',
+              type: 'Ransomware (Attempted)',
+              severity: 'High',
+              description: 'Attempted ransomware attack detected by monitoring systems',
+              impact: 'All 22 library locations temporarily closed. Services proactively shut down. Attack successfully blocked with no data compromise',
+              source: 'https://www.calgarylibrary.ca/library-news/calgary-public-library-implements-pathway-to-recovery-following-cybersecurity-breach'
+            },
+            {
+              id: 11,
+              date: '2025-06-13',
+              organization: 'WestJet',
+              sector: 'Aviation',
+              type: 'Data Breach',
+              severity: 'Critical',
+              description: 'Sophisticated criminal third party gained unauthorized access to systems',
+              impact: 'Customer data exposed including names, birthdates, contact details, gender, travel documents, and booking records. Website and mobile app intermittent access issues. No credit card data or passwords compromised. Fraud monitoring offered to affected customers',
+              source: 'https://www.westjet.com/en-ca/news/2025/westjet-provides-update-on-june-13-2025-cybersecurity-incident'
+            }
+          ];
+
+          const filteredAttacks = useMemo(() => {
+            return cyberAttacks.filter(attack => {
+              const year = new Date(attack.date).getFullYear().toString();
+              const matchesYear = selectedYear === 'all' || year === selectedYear;
+              const matchesSector = selectedSector === 'all' || attack.sector === selectedSector;
+              const matchesSeverity = selectedSeverity === 'all' || attack.severity === selectedSeverity;
+              return matchesYear && matchesSector && matchesSeverity;
+            });
+          }, [selectedYear, selectedSector, selectedSeverity, cyberAttacks]);
+
+          const years = ['all', ...new Set(cyberAttacks.map(a => new Date(a.date).getFullYear().toString()))].sort().reverse();
+          const sectors = ['all', ...new Set(cyberAttacks.map(a => a.sector))].sort();
+          const severities = ['all', 'Critical', 'High', 'Medium', 'Low'];
+
+          const getSeverityColor = (severity) => {
+            switch(severity) {
+              case 'Critical': return 'bg-red-100 text-red-800 border-red-300';
+              case 'High': return 'bg-orange-100 text-orange-800 border-orange-300';
+              case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+              case 'Low': return 'bg-green-100 text-green-800 border-green-300';
+              default: return 'bg-gray-100 text-gray-800 border-gray-300';
+            }
+          };
+
+          const stats = useMemo(() => {
+            const total = filteredAttacks.length;
+            const critical = filteredAttacks.filter(a => a.severity === 'Critical').length;
+            const high = filteredAttacks.filter(a => a.severity === 'High').length;
+            const sectors = new Set(filteredAttacks.map(a => a.sector)).size;
+            return { total, critical, high, sectors };
+          }, [filteredAttacks]);
+
+          // Initialize Lucide icons after component mounts
+          React.useEffect(() => {
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+          }, [selectedYear, selectedSector, selectedSeverity]);
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-6">
+              <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <div className="relative bg-gradient-to-r from-slate-800 to-blue-900 rounded-2xl shadow-2xl p-8 mb-6 border border-blue-500/30 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-3">
+                      {/* Alberta Province Outline */}
+                      <svg className="w-16 h-16 text-blue-400" viewBox="0 0 100 120" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M 50 10 L 90 30 L 90 90 L 50 110 L 10 90 L 10 30 Z" className="animate-pulse" strokeDasharray="4 2"/>
+                        <path d="M 50 10 L 90 30 L 90 90 L 50 110 L 10 90 L 10 30 Z" fill="currentColor" fillOpacity="0.1"/>
+                        <circle cx="50" cy="60" r="15" fill="currentColor" fillOpacity="0.3"/>
+                        <text x="50" y="67" textAnchor="middle" fontSize="20" fill="currentColor" fontWeight="bold">AB</text>
+                      </svg>
+                      <div>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
+                          Alberta Cyber Attack Tracker
+                        </h1>
+                        <p className="text-blue-200 text-sm mt-1">
+                          Real-time threat intelligence for Alberta's cybersecurity landscape
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 ml-20 mb-4">
+                      Community-maintained database of cyber security incidents affecting Alberta organizations
+                    </p>
+                    <div className="mt-4 bg-blue-950/50 border border-blue-400/30 rounded-xl p-4 backdrop-blur-sm">
+                      <p className="text-sm text-blue-300 flex items-center gap-2">
+                        <Database className="w-4 h-4" />
+                        <strong className="text-blue-200">Open Source Project:</strong> Contribute to this tracker on GitHub. See README.md for contribution guidelines.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statistics Dashboard */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-lg p-6 border border-blue-500/30 hover:border-blue-400/50 transition-all hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-400 text-sm">Total Incidents</p>
+                        <p className="text-4xl font-bold text-blue-400">{stats.total}</p>
+                      </div>
+                      <TrendingUp className="w-12 h-12 text-blue-500 opacity-50" />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-red-900 to-red-950 rounded-xl shadow-lg p-6 border border-red-500/30 hover:border-red-400/50 transition-all hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-red-200 text-sm">Critical Severity</p>
+                        <p className="text-4xl font-bold text-red-400">{stats.critical}</p>
+                      </div>
+                      <AlertTriangle className="w-12 h-12 text-red-500 opacity-50" />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-900 to-orange-950 rounded-xl shadow-lg p-6 border border-orange-500/30 hover:border-orange-400/50 transition-all hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-200 text-sm">High Severity</p>
+                        <p className="text-4xl font-bold text-orange-400">{stats.high}</p>
+                      </div>
+                      <AlertTriangle className="w-12 h-12 text-orange-500 opacity-50" />
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-900 to-purple-950 rounded-xl shadow-lg p-6 border border-purple-500/30 hover:border-purple-400/50 transition-all hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-200 text-sm">Sectors Affected</p>
+                        <p className="text-4xl font-bold text-purple-400">{stats.sectors}</p>
+                      </div>
+                      <Building2 className="w-12 h-12 text-purple-500 opacity-50" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl p-6 mb-6 border border-blue-500/30">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Filter className="w-5 h-5 text-blue-400" />
+                    <h2 className="text-xl font-semibold text-blue-300">Filters</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
+                      <select 
+                        value={selectedYear} 
+                        onChange={(e) => setSelectedYear(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-slate-600 transition-colors"
+                      >
+                        {years.map(year => (
+                          <option key={year} value={year}>
+                            {year === 'all' ? 'All Years' : year}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Sector</label>
+                      <select 
+                        value={selectedSector} 
+                        onChange={(e) => setSelectedSector(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-slate-600 transition-colors"
+                      >
+                        {sectors.map(sector => (
+                          <option key={sector} value={sector}>
+                            {sector === 'all' ? 'All Sectors' : sector}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Severity</label>
+                      <select 
+                        value={selectedSeverity} 
+                        onChange={(e) => setSelectedSeverity(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-slate-600 transition-colors"
+                      >
+                        {severities.map(severity => (
+                          <option key={severity} value={severity}>
+                            {severity === 'all' ? 'All Severities' : severity}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline Visualization */}
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl p-6 mb-6 border border-blue-500/30">
+                  <h2 className="text-xl font-semibold text-blue-300 mb-4 flex items-center gap-2">
+                    <Shield className="w-6 h-6" />
+                    Incident Timeline
+                  </h2>
+                  <div className="relative">
+                    {filteredAttacks.length === 0 ? (
+                      <p className="text-gray-400 text-center py-8">No incidents match the selected filters</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredAttacks.sort((a, b) => new Date(b.date) - new Date(a.date)).map((attack, idx) => (
+                          <div key={attack.id} className="flex gap-4 group">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-5 h-5 rounded-full relative z-10 ring-4 ${
+                                attack.severity === 'Critical' ? 'bg-red-500 ring-red-500/20' :
+                                attack.severity === 'High' ? 'bg-orange-500 ring-orange-500/20' :
+                                attack.severity === 'Medium' ? 'bg-yellow-500 ring-yellow-500/20' : 'bg-green-500 ring-green-500/20'
+                              } group-hover:ring-8 transition-all`}>
+                                <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{
+                                  backgroundColor: attack.severity === 'Critical' ? '#ef4444' :
+                                    attack.severity === 'High' ? '#f97316' :
+                                    attack.severity === 'Medium' ? '#eab308' : '#22c55e'
+                                }}></div>
+                              </div>
+                              {idx < filteredAttacks.length - 1 && (
+                                <div className="w-0.5 h-full bg-gradient-to-b from-blue-500/50 to-transparent flex-1 mt-1" />
+                              )}
+                            </div>
+                            <div className="flex-1 pb-8">
+                              <div className="bg-slate-700/50 backdrop-blur-sm rounded-xl p-5 border border-slate-600 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all group-hover:scale-[1.02]">
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Calendar className="w-4 h-4 text-blue-400" />
+                                      <span className="text-sm text-gray-400">{attack.date}</span>
+                                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getSeverityColor(attack.severity)}`}>
+                                        {attack.severity}
+                                      </span>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-blue-300 mb-1">{attack.organization}</h3>
+                                    <div className="flex items-center gap-4 mt-2">
+                                      <span className="text-sm text-gray-400 flex items-center gap-1">
+                                        <Building2 className="w-4 h-4" />
+                                        {attack.sector}
+                                      </span>
+                                      <span className="text-sm font-semibold text-cyan-400 px-3 py-1 bg-cyan-500/10 rounded-full border border-cyan-500/30">
+                                        {attack.type}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="text-gray-300 mb-3 leading-relaxed">{attack.description}</p>
+                                <div className="bg-slate-800/70 p-4 rounded-lg border border-slate-600/50 space-y-2">
+                                  <p className="text-sm text-gray-300">
+                                    <strong className="text-blue-400">Impact:</strong> {attack.impact}
+                                  </p>
+                                  <p className="text-sm text-gray-400 flex items-center gap-2">
+                                    <ExternalLink className="w-3 h-3" />
+                                    <strong className="text-blue-400">Source:</strong> 
+                                    {attack.source.startsWith('http') ? (
+                                      <a href={attack.source} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 underline">
+                                        View Source
+                                      </a>
+                                    ) : (
+                                      <span>{attack.source}</span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Contribution Guidelines */}
+                <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-purple-900 rounded-xl shadow-2xl p-8 text-white border border-blue-500/30 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
+                  
+                  <div className="relative z-10">
+                    <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                      <Shield className="w-8 h-8 text-cyan-400" />
+                      How to Contribute
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-all">
+                        <h3 className="font-bold mb-3 text-cyan-300 text-lg">📝 Adding New Incidents</h3>
+                        <p className="text-sm text-blue-100 leading-relaxed">
+                          Submit a pull request with verified incident details. Include date, organization, attack type, severity, and reliable sources.
+                        </p>
+                      </div>
+                      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-all">
+                        <h3 className="font-bold mb-3 text-cyan-300 text-lg">✅ Verification Required</h3>
+                        <p className="text-sm text-blue-100 leading-relaxed">
+                          All incidents must be publicly reported or confirmed. Include links to news articles, official statements, or security advisories.
+                        </p>
+                      </div>
+                      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-all">
+                        <h3 className="font-bold mb-3 text-cyan-300 text-lg">🔄 Updating Information</h3>
+                        <p className="text-sm text-blue-100 leading-relaxed">
+                          Help keep the database current by updating incident impacts, resolutions, or additional details as they become available.
+                        </p>
+                      </div>
+                      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-all">
+                        <h3 className="font-bold mb-3 text-cyan-300 text-lg">🛡️ Privacy & Ethics</h3>
+                        <p className="text-sm text-blue-100 leading-relaxed">
+                          Only include publicly disclosed information. Do not share sensitive details that could aid attackers or harm victims.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-8 text-center text-gray-400 text-sm">
+                  <p>© 2025 Alberta Cyber Attack Tracker | Open Source Community Project</p>
+                  <p className="mt-2">Built with React, Tailwind CSS, and Lucide Icons</p>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AlbertaCyberTracker />);
     </script>
 </body>
 </html>
