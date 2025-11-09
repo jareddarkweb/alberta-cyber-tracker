@@ -27,6 +27,10 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 3. Ensure all information is verified and publicly available
 4. Submit a pull request
 
+<img width="897" height="912" alt="image" src="https://github.com/user-attachments/assets/99c59c82-ac11-4585-bc9a-a771ee4cd58a" />
+
+
+
 ## 📋 Incident Data Structure
 
 Each incident requires:
