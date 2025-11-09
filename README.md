@@ -1,5 +1,9 @@
 # 🛡️ Alberta Cyber Attack Tracker
 
+
+<img width="824" height="824" alt="image" src="https://github.com/user-attachments/assets/c3bbabfb-2c52-45e3-8e02-e224ac28f22f" />
+
+
 A community-maintained database tracking cyber security incidents affecting organizations in Alberta, Canada.
 
 
